@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CGPA Calculator Bangladesh – NSU, BRAC, AIUB, DIU, IUB, EWU, UIU, AUST</title>
+<meta name="description" content="Free CGPA calculator for Bangladeshi universities. Calculate semester GPA and CGPA from multiple semesters for NSU, BRAC, AIUB, DIU, IUB, EWU, UIU, AUST and public universities.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+[data-theme="dark"] {
+  --bg: #090a0f;
+  --text: #eef0f7;
+  --muted: #8b99b5;
+  --faint: #3a435e;
+  --glass-bg: rgba(20, 23, 33, 0.45);
+  --glass-bg-hover: rgba(30, 35, 50, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hi: rgba(255, 255, 255, 0.15);
+  --glass-input: rgba(0, 0, 0, 0.3);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --accent: #60a5fa;
+  --accent-glow: rgba(96, 165, 250, 0.4);
+  --accent-bg: rgba(96, 165, 250, 0.15);
+  --green: #34d399; --gdim: rgba(52,211,153,0.15); --gbdr: rgba(52,211,153,0.3);
+  --amber: #fbbf24; --yldim: rgba(251,191,36,0.15); --ylbdr: rgba(251,191,36,0.3);
+  --red: #f87171;   --rdim: rgba(248,113,113,0.15); --rbdr: rgba(248,113,113,0.3);
+  --orb1: #3b82f6;
+  --orb2: #8b5cf6;
+  --orb3: #ec4899;
+}
+[data-theme="light"] {
+  --bg: #f3f6fc;
+  --text: #1e293b;
+  --muted: #64748b;
+  --faint: #cbd5e1;
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-bg-hover: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-border-hi: rgba(255, 255, 255, 0.8);
+  --glass-input: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  --accent: #3b82f6;
+  --accent-glow: rgba(59, 130, 246, 0.4);
+  --accent-bg: rgba(59, 130, 246, 0.15);
+  --green: #059669; --gdim: rgba(5,150,105,0.1); --gbdr: rgba(5,150,105,0.25);
+  --amber: #d97706; --yldim: rgba(217,119,6,0.1); --ylbdr: rgba(217,119,6,0.25);
+  --red: #dc2626;   --rdim: rgba(220,38,38,0.1); --rbdr: rgba(220,38,38,0.25);
+  --orb1: #93c5fd;
+  --orb2: #c4b5fd;
+  --orb3: #f9a8d4;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+  transition: background 0.5s ease, color 0.5s ease;
+  overflow-x: hidden;
+}
+
+/* ── LIQUID BACKGROUND ── */
+.bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; }
+.orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; animation: float 20s infinite alternate ease-in-out; }
+.orb.one   { width: 50vw; height: 50vw; background: var(--orb1); top: -10%; left: -10%; animation-duration: 25s; }
+.orb.two   { width: 45vw; height: 45vw; background: var(--orb2); bottom: -10%; right: -5%; animation-duration: 22s; animation-direction: alternate-reverse; }
+.orb.three { width: 35vw; height: 35vw; background: var(--orb3); top: 40%; left: 30%; animation-duration: 28s; opacity: 0.4; }
+@keyframes float {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(10vw, 15vh) scale(1.1); }
+  100% { transform: translate(-10vw, 5vh) scale(0.9); }
+}
+
+/* ── NAV ── */
+nav {
+  display: flex; justify-content: space-between; align-items: center; padding: 15px 24px;
+  background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 300;
+}
+.brand { font-size: 18px; font-weight: 700; letter-spacing: 0.02em; color: var(--text); }
+.brand span { color: var(--accent); }
+.throw { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+.thlbl { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.track { width: 46px; height: 26px; background: var(--glass-input); border: 1px solid var(--glass-border); border-radius: 20px; position: relative; transition: all 0.3s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+.knob { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); position: absolute; top: 3px; left: 4px; transition: left 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); box-shadow: 0 0 10px var(--accent-glow); }
+[data-theme="light"] .knob { left: 22px; }
+
+/* ── HEADER ── */
+header { text-align: center; padding: 60px 20px 40px; }
+.badge {
+  display: inline-block; background: var(--glass-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 6px 16px; border-radius: 30px; border: 1px solid var(--glass-border-hi); margin-bottom: 24px;
+  box-shadow: 0 4px 15px var(--accent-glow);
+}
+h1 { font-size: clamp(32px, 6vw, 56px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 12px; color: var(--text); }
+h1 span.accent { background: linear-gradient(135deg, var(--orb1), var(--orb3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.sub { color: var(--muted); font-size: 15px; max-width: 560px; margin: 0 auto; font-weight: 400; }
+
+/* ── PAGE TABS ── */
+.page-tabs {
+  display: flex;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky;
+  top: 57px;
+  z-index: 200;
+  padding: 0;
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.ptab {
+  flex: 1;
+  padding: 16px 10px;
+  text-align: center;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.ptab:hover { color: var(--text); }
+.ptab.active { color: var(--accent); border-bottom-color: var(--accent); text-shadow: 0 0 15px var(--accent-glow); }
+
+/* ── PAGES ── */
+.page { display: none; }
+.page.active { display: block; animation: fadeUp 0.5s ease backwards; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+.wrap { max-width: 860px; margin: 0 auto; padding: 50px 16px 80px; }
+
+.card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 30px;
+  margin-bottom: 24px;
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.card:hover { border-color: var(--glass-border-hi); transform: translateY(-2px); }
+.slabel { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.ctitle { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 24px; }
+
+/* ── TOGGLES ── */
+.trow { display: flex; background: var(--glass-input); border: 1px solid var(--glass-border); border-radius: 12px; padding: 5px; gap: 5px; width: fit-content; margin-bottom: 24px; }
+.tbtn { padding: 10px 24px; border: none; border-radius: 8px; background: transparent; color: var(--muted); font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+.tbtn.active { background: var(--glass-bg-hover); color: var(--text); box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid var(--glass-border-hi); }
+
+/* ── UNIV GRID ── */
+.ugrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.ucard { border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; cursor: pointer; transition: all 0.3s; background: var(--glass-input); user-select: none; }
+.ucard:hover { border-color: var(--accent); transform: translateY(-2px); background: var(--glass-bg-hover); }
+.ucard.sel { border-color: var(--accent); background: var(--accent-bg); box-shadow: 0 0 15px var(--accent-glow); }
+.uname { font-size: 15px; font-weight: 700; color: var(--text); }
+.ufull { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
+/* ── SCALE TABLE ── */
+.scale-wrap { margin-top: 24px; border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; background: var(--glass-input); }
+.scale-hdr, .scale-row { display: grid; grid-template-columns: 110px 70px 1fr 90px; padding: 12px 20px; border-bottom: 1px solid var(--glass-border); align-items: center; }
+.scale-hdr span { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.scale-row:last-child { border-bottom: none; }
+.scale-row:hover { background: var(--glass-bg-hover); }
+.sr, .sd { font-size: 13px; color: var(--muted); }
+.sl, .sg { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; }
+.sg { text-align: right; }
+.sl.t, .sg.t { color: var(--green); text-shadow: 0 0 8px var(--gdim); }
+.sl.m, .sg.m { color: var(--amber); text-shadow: 0 0 8px var(--yldim); }
+.sl.l, .sg.l { color: var(--red); text-shadow: 0 0 8px var(--rdim); }
+.sl.f, .sg.f { color: var(--muted); }
+.scale-name { font-size: 14px; font-weight: 700; color: var(--text); padding: 16px 20px 8px; }
+
+/* ── COURSES ── */
+.chdr { display: grid; grid-template-columns: 1fr 100px 180px 44px; gap: 12px; padding: 0 6px 12px; border-bottom: 1px solid var(--glass-border); margin-bottom: 16px; }
+.clbl { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.crow { display: grid; grid-template-columns: 1fr 100px 180px 44px; gap: 12px; margin-bottom: 12px; align-items: center; }
+
+input[type=text], input[type=number], select {
+  width: 100%; padding: 12px 16px; background: var(--glass-input); border: 1px solid var(--glass-border); border-radius: 12px;
+  color: var(--text); font-family: 'Sora', sans-serif; font-size: 14px; outline: none; transition: all 0.3s;
+  backdrop-filter: blur(4px); -webkit-appearance: none; appearance: none; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow), inset 0 2px 5px rgba(0,0,0,0.05); background: var(--glass-bg-hover); }
+select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.dbtn { width: 44px; height: 44px; border: 1px solid var(--glass-border); border-radius: 12px; background: var(--glass-input); color: var(--muted); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0; }
+.dbtn:hover { border-color: var(--red); color: var(--red); background: var(--rdim); box-shadow: 0 0 10px var(--rdim); }
+.abtn { margin-top: 16px; padding: 14px; background: var(--glass-input); border: 1px dashed var(--glass-border-hi); border-radius: 12px; color: var(--text); font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; width: 100%; backdrop-filter: blur(4px); }
+.abtn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+
+/* ── RESULTS ── */
+.rgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
+.rcard { background: var(--glass-input); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; transition: all 0.3s; }
+.rcard:hover { transform: translateY(-3px); border-color: var(--glass-border-hi); }
+.rlbl { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.rval { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 600; color: var(--text); transition: color 0.3s; line-height: 1; }
+.rval.g { color: var(--green); text-shadow: 0 0 15px var(--gdim); }
+.rval.a { color: var(--amber); text-shadow: 0 0 15px var(--yldim); }
+.rval.r { color: var(--red); text-shadow: 0 0 15px var(--rdim); }
+.rsub { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+/* ── ALERTS ── */
+.alert { padding: 16px 20px; border-radius: 12px; font-size: 14px; margin-bottom: 20px; backdrop-filter: blur(8px); }
+.ag { background: var(--gdim); color: var(--green); border: 1px solid var(--gbdr); }
+.ar { background: var(--rdim); color: var(--red); border: 1px solid var(--rbdr); }
+.ai { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-glow); }
+
+/* ── SEMESTER CGPA PAGE ── */
+.sem-setup { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 30px; }
+@media(max-width:520px){ .sem-setup { grid-template-columns: 1fr; } }
+.fgrp label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.sem-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.sem-item { background: var(--glass-input); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; transition: all 0.3s; }
+.sem-item:focus-within { border-color: var(--accent); box-shadow: 0 4px 20px var(--accent-glow); }
+.sem-num { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.sem-fields { display: flex; gap: 12px; }
+.sem-fields > div { flex: 1; }
+.sem-fields label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.calc-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--orb1), var(--orb2)); color: #fff; border: none; border-radius: 16px; font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-bottom: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+.calc-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); filter: brightness(1.1); }
+.calc-btn:active { transform: scale(0.98); }
+.sem-result-big { text-align: center; background: var(--glass-input); border: 1px solid var(--glass-border); border-radius: 24px; padding: 40px 20px; margin-bottom: 24px; box-shadow: inset 0 0 40px rgba(0,0,0,0.1); }
+.big-val { font-family: 'JetBrains Mono', monospace; font-size: 64px; font-weight: 600; line-height: 1; margin-bottom: 10px; text-shadow: 0 0 20px currentColor; }
+.big-lbl { font-size: 13px; color: var(--text); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+.sem-breakdown { width: 100%; border-collapse: collapse; font-size: 14px; }
+.sem-breakdown th { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 12px; border-bottom: 1px solid var(--glass-border); text-align: left; }
+.sem-breakdown td { padding: 14px 12px; border-bottom: 1px solid var(--glass-border); color: var(--text); }
+.sem-breakdown tr:last-child td { border-bottom: none; }
+
+footer { text-align: center; padding: 30px 20px; border-top: 1px solid var(--glass-border); color: var(--muted); font-size: 13px; backdrop-filter: blur(10px); }
+
+@media(max-width:640px){
+  .chdr { display: none; }
+  .crow { grid-template-columns: 1fr 44px; gap: 8px; }
+  .crow > input[type=number] { display: none; }
+  .scale-hdr, .scale-row { grid-template-columns: 90px 60px 1fr 70px; padding: 12px; }
+  .page-tabs { padding: 0 16px; }
+  header { padding: 40px 16px 30px; }
+  .card { padding: 20px; }
+}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CGPA Calculator Bangladesh","description":"Free CGPA and GPA calculator for all Bangladeshi universities","applicationCategory":"EducationApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0"}}</script>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+  <div class="orb three"></div>
+</div>
+
+<nav>
+  <div class="brand">CGPA<span>BD</span></div>
+  <div class="throw" onclick="toggleTheme()">
+    <span class="thlbl" id="thlbl">Light mode</span>
+    <div class="track"><div class="knob"></div></div>
+  </div>
+</nav>
+
+<header>
+  <div class="badge">Bangladesh University GPA Tool</div>
+  <h1>CGPA <span class="accent">Calculator</span> BD</h1>
+  <p class="sub">Semester GPA and cumulative CGPA from multiple semesters — with your university's exact grading scale.</p>
+</header>
+
+<div class="page-tabs">
+  <button class="ptab active" onclick="showPage('semester',this)">Semester GPA</button>
+  <button class="ptab"        onclick="showPage('cgpa',this)">CGPA from Semesters</button>
+</div>
+
+<div class="page active" id="page-semester">
+<div class="wrap">
+
+  <div class="card">
+    <div class="slabel">Step 1</div>
+    <div class="ctitle">Select Your University</div>
+    <div class="trow">
+      <button class="tbtn active" id="bpub" onclick="setType('public')">Public University</button>
+      <button class="tbtn"        id="bprv" onclick="setType('private')">Private University</button>
+    </div>
+    <div id="pub-sec"><div class="alert ai">Public universities follow the UGC standard grading scale (A+ = 4.00 down to F = 0.00).</div></div>
+    <div id="prv-sec" style="display:none"><div class="ugrid" id="ugrid"></div></div>
+    <div id="sbar"></div>
+  </div>
+
+  <div class="card">
+    <div class="slabel">Step 2</div>
+    <div class="ctitle">Enter Your Courses</div>
+    <div class="chdr">
+      <div class="clbl">Course name</div>
+      <div class="clbl">Credits</div>
+      <div class="clbl">Grade received</div>
+      <div></div>
+    </div>
+    <div id="clist"></div>
+    <button class="abtn" onclick="addCourse()">+ Add another course</button>
+  </div>
+
+  <div class="card">
+    <div class="slabel">Result</div>
+    <div class="ctitle">Your Semester GPA</div>
+    <div class="rgrid">
+      <div class="rcard"><div class="rlbl">Semester GPA</div><div class="rval" id="rgpa">—</div><div class="rsub">out of <span id="rmax">4.00</span></div></div>
+      <div class="rcard"><div class="rlbl">Total Credits</div><div class="rval" id="rcr">—</div><div class="rsub">credit hours</div></div>
+      <div class="rcard"><div class="rlbl">Grade Points</div><div class="rval" id="rpts" style="font-size:26px">—</div><div class="rsub">sum of credits × grade value</div></div>
+      <div class="rcard"><div class="rlbl">Courses</div><div class="rval" id="rcount">0</div><div class="rsub">this semester</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="page" id="page-cgpa">
+<div class="wrap">
+
+  <div class="card">
+    <div class="ctitle">CGPA from Multiple Semesters</div>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:24px">Enter each semester's GPA and credit hours to calculate your overall CGPA.</p>
+
+    <div class="sem-setup">
+      <div class="fgrp">
+        <label>University</label>
+        <select id="sem-univ" onchange="onSemUnivChange()">
+          <option value="public">Public University (UGC)</option>
+          <option value="nsu">North South University (NSU)</option>
+          <option value="brac">BRAC University</option>
+          <option value="aiub">American International Univ. (AIUB)</option>
+          <option value="diu">Daffodil International Univ. (DIU)</option>
+          <option value="iub">Independent University Bangladesh (IUB)</option>
+          <option value="aust">Ahsanullah Univ. of Sci. &amp; Tech. (AUST)</option>
+          <option value="ewu">East West University (EWU)</option>
+          <option value="uiu">United International University (UIU)</option>
+        </select>
+      </div>
+      <div class="fgrp">
+        <label>Number of semesters</label>
+        <select id="sem-count" onchange="buildSemFields()">
+          <option value="">— Select —</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+          <option>5</option><option>6</option><option>7</option><option>8</option>
+          <option>9</option><option>10</option><option>11</option><option>12</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="sem-fields"></div>
+    <div id="sem-calc-wrap" style="display:none">
+      <button class="calc-btn" onclick="calcSemCGPA()">Calculate CGPA</button>
+    </div>
+    <div id="sem-result"></div>
+  </div>
+
+</div>
+</div>
+
+<footer>
+  <p>Free CGPA Calculator — NSU · BRAC · AIUB · DIU · IUB · EWU · UIU · AUST · Public Universities</p>
+  <p style="margin-top:8px;font-size:12px;color:var(--faint)">Grading scales based on each university's official academic regulations.</p>
+</footer>
+
+<script>
+const SC={
+  public:{name:'Public University (UGC Standard)',short:'Public / UGC',g:[
+    {l:'A+',p:4.00,r:'80–100',d:'Outstanding'},{l:'A',p:3.75,r:'75–79',d:'Excellent'},
+    {l:'A-',p:3.50,r:'70–74',d:'Very Good'},{l:'B+',p:3.25,r:'65–69',d:'Good'},
+    {l:'B',p:3.00,r:'60–64',d:'Good'},{l:'B-',p:2.75,r:'55–59',d:'Above Average'},
+    {l:'C+',p:2.50,r:'50–54',d:'Average'},{l:'C',p:2.25,r:'45–49',d:'Below Average'},
+    {l:'D',p:2.00,r:'40–44',d:'Pass'},{l:'F',p:0.00,r:'0–39',d:'Fail'},
+  ]},
+  nsu:{name:'North South University',short:'NSU',g:[
+    {l:'A',p:4.00,r:'93–100',d:'Excellent'},{l:'A-',p:3.70,r:'90–92',d:'Excellent'},
+    {l:'B+',p:3.30,r:'87–89',d:'Good'},{l:'B',p:3.00,r:'83–86',d:'Good'},
+    {l:'B-',p:2.70,r:'80–82',d:'Good'},{l:'C+',p:2.30,r:'77–79',d:'Average'},
+    {l:'C',p:2.00,r:'73–76',d:'Average'},{l:'C-',p:1.70,r:'70–72',d:'Average'},
+    {l:'D+',p:1.30,r:'67–69',d:'Poor'},{l:'D',p:1.00,r:'60–66',d:'Poor'},
+    {l:'F',p:0.00,r:'Below 60',d:'Failure'},
+  ]},
+  brac:{name:'BRAC University',short:'BRAC',g:[
+    {l:'A+',p:4.00,r:'97–100',d:'Exceptional'},
+    {l:'A',p:4.00,r:'90–<97',d:'Excellent'},
+    {l:'A-',p:3.70,r:'85–<90',d:'Very Good'},
+    {l:'B+',p:3.30,r:'80–<85',d:'Good'},
+    {l:'B',p:3.00,r:'75–<80',d:'Good'},
+    {l:'B-',p:2.70,r:'70–<75',d:'Above Average'},
+    {l:'C+',p:2.30,r:'65–<70',d:'Average'},
+    {l:'C',p:2.00,r:'60–<65',d:'Fair'},
+    {l:'C-',p:1.70,r:'57–<60',d:'Below Average'},
+    {l:'D+',p:1.30,r:'55–<57',d:'Poor'},
+    {l:'D',p:1.00,r:'52–<55',d:'Poor'},
+    {l:'D-',p:0.70,r:'50–<52',d:'Poor'},
+    {l:'F',p:0.00,r:'Below 50',d:'Failure'},
+  ]},
+  aiub:{name:'American International University–BD',short:'AIUB',g:[
+    {l:'A+',p:4.00,r:'90–100',d:'Outstanding'},{l:'A',p:3.75,r:'85–<90',d:'Excellent'},
+    {l:'B+',p:3.50,r:'80–<85',d:'Very Good'},{l:'B',p:3.25,r:'75–<80',d:'Good'},
+    {l:'C+',p:3.00,r:'70–<75',d:'Average'},{l:'C',p:2.75,r:'65–<70',d:'Average'},
+    {l:'D+',p:2.50,r:'60–<65',d:'Below Average'},{l:'D',p:2.25,r:'50–<60',d:'Pass'},
+    {l:'F',p:0.00,r:'Below 50',d:'Fail'},
+  ]},
+  diu:{name:'Daffodil International University',short:'DIU',g:[
+    {l:'A+',p:4.00,r:'80–100',d:'Outstanding'},{l:'A',p:3.75,r:'75–79',d:'Excellent'},
+    {l:'A-',p:3.50,r:'70–74',d:'Very Good'},{l:'B+',p:3.25,r:'65–69',d:'Good'},
+    {l:'B',p:3.00,r:'60–64',d:'Good'},{l:'B-',p:2.75,r:'55–59',d:'Above Average'},
+    {l:'C+',p:2.50,r:'50–54',d:'Average'},{l:'C',p:2.25,r:'45–49',d:'Below Average'},
+    {l:'C-',p:2.00,r:'40–44',d:'Pass'},{l:'D',p:1.00,r:'35–39',d:'Poor'},
+    {l:'F',p:0.00,r:'Below 35',d:'Fail'},
+  ]},
+  iub:{name:'Independent University Bangladesh',short:'IUB',g:[
+    {l:'A',p:4.00,r:'90–100',d:'Excellent'},{l:'A-',p:3.70,r:'85–<90',d:'Excellent'},
+    {l:'B+',p:3.30,r:'80–<85',d:'Good'},{l:'B',p:3.00,r:'75–<80',d:'Good'},
+    {l:'B-',p:2.70,r:'70–<75',d:'Good'},{l:'C+',p:2.30,r:'65–<70',d:'Passing'},
+    {l:'C',p:2.00,r:'60–<65',d:'Passing'},{l:'C-',p:1.70,r:'55–<60',d:'Passing'},
+    {l:'D+',p:1.30,r:'50–<55',d:'Deficient'},{l:'D',p:1.00,r:'45–<50',d:'Deficient'},
+    {l:'F',p:0.00,r:'Below 45',d:'Failing'},
+  ]},
+  aust:{name:'Ahsanullah Univ. of Science & Technology',short:'AUST',g:[
+    {l:'A+',p:4.00,r:'80–100',d:'Outstanding'},{l:'A',p:3.75,r:'75–79',d:'Excellent'},
+    {l:'A-',p:3.50,r:'70–74',d:'Very Good'},{l:'B+',p:3.25,r:'65–69',d:'Good'},
+    {l:'B',p:3.00,r:'60–64',d:'Good'},{l:'B-',p:2.75,r:'55–59',d:'Above Average'},
+    {l:'C+',p:2.50,r:'50–54',d:'Average'},{l:'C',p:2.25,r:'45–49',d:'Below Average'},
+    {l:'C-',p:2.00,r:'40–44',d:'Pass'},{l:'D',p:1.00,r:'35–39',d:'Poor'},
+    {l:'F',p:0.00,r:'Below 35',d:'Fail'},
+  ]},
+  ewu:{name:'East West University',short:'EWU',g:[
+    {l:'A+',p:4.00,r:'80–100',d:'Outstanding'},
+    {l:'A',p:3.75,r:'75–79',d:'Excellent'},
+    {l:'A-',p:3.50,r:'70–74',d:'Very Good'},
+    {l:'B+',p:3.25,r:'65–69',d:'Good'},
+    {l:'B',p:3.00,r:'60–64',d:'Good'},
+    {l:'B-',p:2.75,r:'55–59',d:'Above Average'},
+    {l:'C+',p:2.50,r:'50–54',d:'Average'},
+    {l:'C',p:2.25,r:'45–49',d:'Below Average'},
+    {l:'D',p:2.00,r:'40–44',d:'Pass'},
+    {l:'F',p:0.00,r:'0–39',d:'Fail'},
+  ]},
+  uiu:{name:'United International University',short:'UIU',g:[
+    {l:'A',p:4.00,r:'90–100',d:'Outstanding'},{l:'A-',p:3.67,r:'86–89',d:'Excellent'},
+    {l:'B+',p:3.33,r:'82–85',d:'Very Good'},{l:'B',p:3.00,r:'78–81',d:'Good'},
+    {l:'B-',p:2.67,r:'74–77',d:'Above Average'},{l:'C+',p:2.33,r:'70–73',d:'Average'},
+    {l:'C',p:2.00,r:'66–69',d:'Below Average'},{l:'C-',p:1.67,r:'62–65',d:'Poor'},
+    {l:'D+',p:1.33,r:'58–61',d:'Very Poor'},{l:'D',p:1.00,r:'55–57',d:'Pass'},
+    {l:'F',p:0.00,r:'0–54',d:'Fail'},
+  ]},
+};
+
+const PL=['nsu','brac','aiub','diu','iub','aust','ewu','uiu'];
+let key='public',courses=[],uid=0;
+
+function toggleTheme(){
+  const h=document.documentElement,cur=h.getAttribute('data-theme');
+  const next=cur==='dark'?'light':'dark';
+  h.setAttribute('data-theme',next);
+  localStorage.setItem('cgpa-theme',next);
+  document.getElementById('thlbl').textContent=next==='light'?'Dark mode':'Light mode';
+}
+(function(){
+  const s=localStorage.getItem('cgpa-theme');
+  const t=s||(window.matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');
+  document.documentElement.setAttribute('data-theme',t);
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('thlbl').textContent=t==='light'?'Dark mode':'Light mode';
+  });
+})();
+
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function init(){
+  document.getElementById('ugrid').innerHTML=PL.map(k=>
+    `<div class="ucard" onclick="selU('${k}')" id="uc-${k}"><div class="uname">${SC[k].short}</div><div class="ufull">${SC[k].name}</div></div>`
+  ).join('');
+  renderScale();
+  addCourse('',3);addCourse('',3);addCourse('',3);
+}
+
+function setType(t){
+  const p=t==='private';
+  document.getElementById('bpub').classList.toggle('active',!p);
+  document.getElementById('bprv').classList.toggle('active',p);
+  document.getElementById('pub-sec').style.display=p?'none':'block';
+  document.getElementById('prv-sec').style.display=p?'block':'none';
+  if(!p){key='public';renderScale();rebuildDrops();calc();}
+  else selU(PL.includes(key)?key:PL[0]);
+}
+function selU(k){
+  key=k;
+  document.querySelectorAll('.ucard').forEach(c=>c.classList.remove('sel'));
+  const el=document.getElementById('uc-'+k);if(el)el.classList.add('sel');
+  renderScale();rebuildDrops();calc();
+}
+
+function gpCls(p){return p>=3.5?'t':p>=2.0?'m':p>0?'l':'f';}
+
+function renderScale(){
+  const s=SC[key];
+  document.getElementById('rmax').textContent=s.g[0].p.toFixed(2);
+  const rows=s.g.map(g=>{
+    const c=gpCls(g.p);
+    return `<div class="scale-row"><span class="sr">${g.r}%</span><span class="sl ${c}">${g.l}</span><span class="sd">${g.d}</span><span class="sg ${c}">${g.p.toFixed(2)}</span></div>`;
+  }).join('');
+  document.getElementById('sbar').innerHTML=`<div class="scale-wrap"><div class="scale-name">${s.name} — Grading Scale</div><div class="scale-hdr"><span>Score</span><span>Grade</span><span>Description</span><span style="text-align:right">Points</span></div>${rows}</div>`;
+}
+
+function opts(sel){
+  const sc=SC[key],use=sel??sc.g[0].p;
+  return sc.g.map(g=>`<option value="${g.p}"${Math.abs(g.p-use)<.001?' selected':''}>${g.l} — ${g.p.toFixed(2)} (${g.r}%)</option>`).join('');
+}
+function addCourse(name='',credit=3,gp=null){
+  const id=++uid,igp=gp??SC[key].g[0].p;
+  courses.push({id,name,credit,gp:igp});
+  const r=document.createElement('div');r.className='crow';r.id='row-'+id;
+  r.innerHTML=`
+    <input type="text" value="${name}" placeholder="e.g. Data Structures, Physics I…" oninput="upd(${id},'name',this.value)">
+    <input type="number" value="${credit}" min="0.5" max="6" step="0.5" oninput="upd(${id},'credit',parseFloat(this.value)||0)">
+    <select onchange="upd(${id},'gp',parseFloat(this.value))">${opts(igp)}</select>
+    <button class="dbtn" onclick="rem(${id})" title="Remove">×</button>`;
+  document.getElementById('clist').appendChild(r);calc();
+}
+function upd(id,f,v){const c=courses.find(x=>x.id===id);if(c){c[f]=v;calc();}}
+function rem(id){courses=courses.filter(x=>x.id!==id);const e=document.getElementById('row-'+id);if(e)e.remove();calc();}
+function rebuildDrops(){
+  document.querySelectorAll('.crow select').forEach(s=>{
+    const id=parseInt(s.closest('.crow').id.replace('row-',''));
+    const c=courses.find(x=>x.id===id);if(!c)return;
+    const cl=SC[key].g.reduce((p,g)=>Math.abs(g.p-c.gp)<Math.abs(p.p-c.gp)?g:p);
+    s.innerHTML=opts(cl.p);c.gp=cl.p;
+  });calc();
+}
+
+function calc(){
+  const v=courses.filter(c=>c.credit>0);
+  const tc=v.reduce((s,c)=>s+c.credit,0),tp=v.reduce((s,c)=>s+c.credit*c.gp,0);
+  const gpa=tc>0?tp/tc:null;
+  const el=document.getElementById('rgpa');
+  el.textContent=gpa!==null?gpa.toFixed(2):'—';
+  el.className='rval'+(gpa===null?'':(gpa>=3.5?' g':gpa>=2.5?' a':' r'));
+  document.getElementById('rcr').textContent=tc>0?tc:'—';
+  document.getElementById('rpts').textContent=tc>0?tp.toFixed(2):'—';
+  document.getElementById('rcount').textContent=v.length;
+}
+
+function buildSemFields(){
+  const n=parseInt(document.getElementById('sem-count').value);
+  const wrap=document.getElementById('sem-fields');
+  const cw=document.getElementById('sem-calc-wrap');
+  if(!n||n<1){wrap.innerHTML='';cw.style.display='none';document.getElementById('sem-result').innerHTML='';return;}
+  let html='<div class="sem-grid">';
+  for(let i=1;i<=n;i++){
+    html+=`<div class="sem-item"><div class="sem-num">Semester ${i}</div><div class="sem-fields"><div><label>SGPA</label><input type="number" id="sgpa-${i}" min="0" max="4" step="0.01" placeholder="e.g. 3.50"></div><div><label>Credits</label><input type="number" id="scr-${i}" min="1" max="30" step="0.5" placeholder="e.g. 18"></div></div></div>`;
+  }
+  html+='</div>';
+  wrap.innerHTML=html;
+  cw.style.display='block';
+  document.getElementById('sem-result').innerHTML='';
+}
+
+function onSemUnivChange(){document.getElementById('sem-result').innerHTML='';}
+
+function calcSemCGPA(){
+  const n=parseInt(document.getElementById('sem-count').value);
+  const univKey=document.getElementById('sem-univ').value;
+  const sc=SC[univKey],mx=sc.g[0].p;
+  if(!n||n<1)return;
+  let totalPts=0,totalCr=0,rows='',hasError=false;
+  for(let i=1;i<=n;i++){
+    const sgpa=parseFloat(document.getElementById('sgpa-'+i).value);
+    const cr=parseFloat(document.getElementById('scr-'+i).value);
+    const badSgpa=isNaN(sgpa)||sgpa<0||sgpa>mx+.01;
+    const badCr=isNaN(cr)||cr<=0;
+    document.getElementById('sgpa-'+i).style.borderColor=badSgpa?'var(--red)':'';
+    document.getElementById('scr-'+i).style.borderColor=badCr?'var(--red)':'';
+    if(badSgpa||badCr){hasError=true;continue;}
+    const pts=sgpa*cr;totalPts+=pts;totalCr+=cr;
+    const gc=sgpa>=3.5?'var(--green)':sgpa>=2.5?'var(--amber)':'var(--red)';
+    rows+=`<tr><td style="color:var(--muted)">Semester ${i}</td><td style="text-align:center;font-family:'JetBrains Mono',monospace;color:${gc}">${sgpa.toFixed(2)}</td><td style="text-align:center;font-family:'JetBrains Mono',monospace;color:var(--muted)">${cr}</td><td style="text-align:center;font-family:'JetBrains Mono',monospace;color:var(--muted)">${pts.toFixed(2)}</td></tr>`;
+  }
+  if(hasError){document.getElementById('sem-result').innerHTML=`<div class="alert ar">Please fill in all semester fields. SGPA must be between 0 and ${mx.toFixed(2)} and credits must be greater than 0.</div>`;return;}
+  if(totalCr===0){document.getElementById('sem-result').innerHTML='<div class="alert ai">Enter at least one semester\'s data.</div>';return;}
+  const cgpa=totalPts/totalCr;
+  const bigCls=cgpa>=3.5?'var(--green)':cgpa>=2.5?'var(--amber)':'var(--red)';
+  document.getElementById('sem-result').innerHTML=`
+    <div class="sem-result-big">
+      <div class="big-val" style="color:${bigCls}">${cgpa.toFixed(2)}</div>
+      <div class="big-lbl">Cumulative CGPA — ${sc.short}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:12px">${totalCr} total credits across ${n} semester${n>1?'s':''}</div>
+    </div>
+    <table class="sem-breakdown">
+      <thead><tr><th>Semester</th><th style="text-align:center">SGPA</th><th style="text-align:center">Credits</th><th style="text-align:center">Grade Points</th></tr></thead>
+      <tbody>
+        ${rows}
+        <tr style="background:var(--glass-bg-hover)">
+          <td style="font-weight:600;color:var(--text)">Overall</td>
+          <td style="text-align:center;font-family:'JetBrains Mono',monospace;font-weight:600;color:${bigCls}">${cgpa.toFixed(2)}</td>
+          <td style="text-align:center;font-family:'JetBrains Mono',monospace;color:var(--text)">${totalCr}</td>
+          <td style="text-align:center;font-family:'JetBrains Mono',monospace;color:var(--text)">${totalPts.toFixed(2)}</td>
+        </tr>
+      </tbody>
+    </table>`;
+}
+
+init();
+</script>
+</body>
+</html>
